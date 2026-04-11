@@ -1102,6 +1102,7 @@
 
         // -- NOUVEAU : Jauge Unique (Top TR ou sélectionné via Menu/Clic) HTML/CSS Réaliste
         // -- NOUVEAU : Jauge Unique ECharts (Top TR ou sélectionné via Menu/Clic)
+// -- NOUVEAU : Jauge Unique ECharts (Aiguille classique & Texte réorganisé)
 function renderSingleGauge(data) {
     let trData = [];
     
@@ -1133,12 +1134,12 @@ function renderSingleGauge(data) {
 
     // 4. Définir le dégradé de la jauge (Vert -> Orange -> Rouge)
     var gaugeGradient = new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-        { offset: 0, color: '#4caf50' },   // Vert (Sûr)
-        { offset: 0.6, color: '#ff9800' }, // Orange (Attention)
-        { offset: 1, color: '#f44336' }    // Rouge (Surcharge)
+        { offset: 0, color: '#4caf50' },   
+        { offset: 0.6, color: '#ff9800' }, 
+        { offset: 1, color: '#f44336' }    
     ]);
 
-    // 5. Configurer la jauge riche
+    // 5. Configurer la jauge avec AIGUILLE
     let option = {
         tooltip: { formatter: '{a} <br/>{b} : {c}%' },
         series: [{
@@ -1147,30 +1148,42 @@ function renderSingleGauge(data) {
             startAngle: 180, 
             endAngle: 0,
             radius: '100%',
-            center: ['50%', '80%'], // Ancré bas pour le demi-cercle
+            // On remonte un peu le centre pour laisser de la place au texte en dessous
+            center: ['50%', '65%'], 
             
             min: 0, 
-            max: 150, // Adapté à votre échelle précédente
+            max: 150, 
             splitNumber: 5,
             
-            // --- Aiguille (Point stylisé) ---
+            // --- L'Aiguille (Needle) ---
             pointer: {
                 show: true,
-                icon: 'circle',
+                // En supprimant l'attribut "icon", ECharts utilise la forme d'aiguille par défaut
                 length: '75%', 
-                width: 20,
-                offsetCenter: [0, '-45%'],
+                width: 8, // Largeur de la base de l'aiguille
+                offsetCenter: [0, '0%'], // Pivote depuis le centre exact
                 itemStyle: {
-                    color: '#fff',
-                    borderColor: '#333',
-                    borderWidth: 2,
-                    shadowColor: 'rgba(0, 0, 0, 0.4)',
-                    shadowBlur: 8,
+                    color: '#2c3e50', // Couleur gris foncé/bleuté professionnel
+                    shadowColor: 'rgba(0, 0, 0, 0.3)',
+                    shadowBlur: 5,
                     shadowOffsetY: 2
                 },
-                // Configuration de l'animation fluide
                 animationDurationUpdate: 1000, 
                 animationEasingUpdate: 'cubicOut'
+            },
+
+            // --- L'Axe Central (Le pivot de l'aiguille) ---
+            anchor: {
+                show: true,
+                showAbove: true,
+                size: 16,
+                itemStyle: {
+                    color: '#fff', // Centre blanc
+                    borderColor: '#2c3e50', // Contour assorti à l'aiguille
+                    borderWidth: 3,
+                    shadowColor: 'rgba(0, 0, 0, 0.3)',
+                    shadowBlur: 5
+                }
             },
 
             // --- Arrière-plan de l'Arc ---
@@ -1204,7 +1217,6 @@ function renderSingleGauge(data) {
                 formatter: function (value) { return value + '%'; }
             },
             
-            // --- Remplissage de Progression ---
             progress: {
                 show: true,
                 width: 25,
@@ -1215,21 +1227,23 @@ function renderSingleGauge(data) {
             // --- Titre (Nom du Transformateur) ---
             title: {
                 show: true,
-                offsetCenter: [0, '15%'],
-                fontSize: 13,
+                // Positionné SOUS le pivot central
+                offsetCenter: [0, '25%'], 
+                fontSize: 14,
                 color: '#666',
-                fontWeight: 'bold'
+                fontWeight: 'normal'
             },
             
-            // --- Affichage du Taux (Chiffres animés) ---
+            // --- Affichage du Taux (Valeur) ---
             detail: {
                 show: true,
-                offsetCenter: [0, '-15%'],
+                // Positionné ENCORE PLUS BAS, sous le nom du transformateur
+                offsetCenter: [0, '55%'], 
                 color: 'var(--primary-color)',
-                fontSize: 32,
-                fontWeight: 'bold',
+                fontSize: 34,
+                fontWeight: 'bold', // Le texte est mis en gras ici
                 formatter: '{value}%',
-                valueAnimation: true, // Anime les numéros
+                valueAnimation: true, 
                 animationDurationUpdate: 1000
             },
             
@@ -1238,7 +1252,7 @@ function renderSingleGauge(data) {
         }]
     };
 
-    // 6. Mettre à jour le graphique (déclenche l'animation)
+    // 6. Mettre à jour le graphique
     gaugeChart.setOption(option, true);
 }
 
