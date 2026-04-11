@@ -614,7 +614,7 @@
         let selectedTransformer = null; // Gère le clic sur le Top 10 TR ou Jauge
         
         // Instances ECharts
-        let treemapChart, tarifsChart, provinceChart, transformersChart, monthlyChart, errorChart;
+        let treemapChart, tarifsChart, provinceChart, transformersChart, monthlyChart, errorChart, gaugeChart;
 
         // ==========================================
         // 2. FONCTIONS DE PARSING & UTILITAIRES
@@ -747,6 +747,7 @@
             transformersChart = echarts.init(document.getElementById('transformersChart'));
             monthlyChart = echarts.init(document.getElementById('monthlyChart'));
             errorChart = echarts.init(document.getElementById('errorChart'));
+            gaugeChart = echarts.init(document.getElementById('single-gauge-box'));
 
             // Clic sur Treemap -> Filtre les Tarifs
             treemapChart.on('click', function (params) {
@@ -795,6 +796,7 @@
                 transformersChart.resize();
                 monthlyChart.resize();
                 errorChart.resize();
+                if(gaugeChart) gaugeChart.resize();
             });
 
             setupMapInteractions();
@@ -1099,46 +1101,146 @@
         }
 
         // -- NOUVEAU : Jauge Unique (Top TR ou sélectionné via Menu/Clic) HTML/CSS Réaliste
-        function renderSingleGauge(data) {
-            let trData =[];
-            
-            if (selectedTransformer) {
-                // Trouver le TR spécifique
-                trData = data.filter(d => d['Transformateur'] === selectedTransformer);
-            } else {
-                // Trouver le TR le plus chargé (Taux de Charge)
-                trData = data.filter(d => d['Transformateur'] && parseNumericValue(d['Taux de Charge']) > 0)
-                             .sort((a, b) => parseNumericValue(b['Taux de Charge']) - parseNumericValue(a['Taux de Charge']));
-            }
+        // -- NOUVEAU : Jauge Unique ECharts (Top TR ou sélectionné via Menu/Clic)
+function renderSingleGauge(data) {
+    let trData = [];
+    
+    // 1. Filtrer les données selon la sélection
+    if (selectedTransformer) {
+        trData = data.filter(d => d['Transformateur'] === selectedTransformer);
+    } else {
+        trData = data.filter(d => d['Transformateur'] && parseNumericValue(d['Taux de Charge']) > 0)
+                     .sort((a, b) => parseNumericValue(b['Taux de Charge']) - parseNumericValue(a['Taux de Charge']));
+    }
 
-            let container = document.getElementById('single-gauge-box');
-            
-            if (trData.length > 0) {
-                let item = trData[0];
-                let val = parseNumericValue(item['Taux de Charge']);
-                let name = item['Transformateur'];
-                
-                // L'échelle va de 0% à 150%. 
-                // Angle varie de -90deg (0%) à +90deg (150%).
-                let visualVal = Math.min(val, 150); 
-                let angle = (visualVal / 150) * 180 - 90;
-
-                container.innerHTML = `
-                    <div class="css-gauge-wrapper">
-                        <div class="css-gauge-body">
-                            <div class="css-gauge-dial"></div>
-                            <div class="css-gauge-ticks"></div>
-                            <div class="css-gauge-needle" style="--needle-angle: ${angle}deg;"></div>
-                            <div class="css-gauge-pin"></div>
-                        </div>
-                        <div class="css-gauge-value">${val.toFixed(1)}%</div>
-                        <div class="css-gauge-label">${name}</div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = '<div style="color:var(--text-muted); font-style:italic;">Aucune donnée disponible</div>';
+    // 2. Gérer le cas où il n'y a pas de données
+    if (trData.length === 0) {
+        gaugeChart.clear();
+        gaugeChart.setOption({
+            title: {
+                text: "Aucune donnée disponible",
+                left: 'center', top: 'center',
+                textStyle: { color: '#999', fontSize: 14, fontStyle: 'italic', fontWeight: 'normal' }
             }
-        }
+        });
+        return;
+    }
+
+    // 3. Extraire la valeur et le nom
+    let item = trData[0];
+    let val = parseNumericValue(item['Taux de Charge']);
+    let name = item['Transformateur'];
+
+    // 4. Définir le dégradé de la jauge (Vert -> Orange -> Rouge)
+    var gaugeGradient = new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+        { offset: 0, color: '#4caf50' },   // Vert (Sûr)
+        { offset: 0.6, color: '#ff9800' }, // Orange (Attention)
+        { offset: 1, color: '#f44336' }    // Rouge (Surcharge)
+    ]);
+
+    // 5. Configurer la jauge riche
+    let option = {
+        tooltip: { formatter: '{a} <br/>{b} : {c}%' },
+        series: [{
+            name: 'Taux de Charge',
+            type: 'gauge',
+            startAngle: 180, 
+            endAngle: 0,
+            radius: '100%',
+            center: ['50%', '80%'], // Ancré bas pour le demi-cercle
+            
+            min: 0, 
+            max: 150, // Adapté à votre échelle précédente
+            splitNumber: 5,
+            
+            // --- Aiguille (Point stylisé) ---
+            pointer: {
+                show: true,
+                icon: 'circle',
+                length: '75%', 
+                width: 20,
+                offsetCenter: [0, '-45%'],
+                itemStyle: {
+                    color: '#fff',
+                    borderColor: '#333',
+                    borderWidth: 2,
+                    shadowColor: 'rgba(0, 0, 0, 0.4)',
+                    shadowBlur: 8,
+                    shadowOffsetY: 2
+                },
+                // Configuration de l'animation fluide
+                animationDurationUpdate: 1000, 
+                animationEasingUpdate: 'cubicOut'
+            },
+
+            // --- Arrière-plan de l'Arc ---
+            axisLine: {
+                roundCap: true,
+                lineStyle: {
+                    width: 25,
+                    color: [[1, '#e9ecef']] 
+                }
+            },
+            
+            // --- Effet Pointillé ---
+            axisTick: {
+                show: true,
+                distance: -25,
+                length: 8,
+                lineStyle: {
+                    color: '#fff',
+                    width: 3,
+                    type: 'dashed'
+                }
+            },
+            
+            splitLine: { show: false },
+            
+            axisLabel: {
+                show: true,
+                distance: -40,
+                color: '#888',
+                fontSize: 10,
+                formatter: function (value) { return value + '%'; }
+            },
+            
+            // --- Remplissage de Progression ---
+            progress: {
+                show: true,
+                width: 25,
+                roundCap: true,
+                itemStyle: { color: gaugeGradient }
+            },
+            
+            // --- Titre (Nom du Transformateur) ---
+            title: {
+                show: true,
+                offsetCenter: [0, '15%'],
+                fontSize: 13,
+                color: '#666',
+                fontWeight: 'bold'
+            },
+            
+            // --- Affichage du Taux (Chiffres animés) ---
+            detail: {
+                show: true,
+                offsetCenter: [0, '-15%'],
+                color: 'var(--primary-color)',
+                fontSize: 32,
+                fontWeight: 'bold',
+                formatter: '{value}%',
+                valueAnimation: true, // Anime les numéros
+                animationDurationUpdate: 1000
+            },
+            
+            // Données injectées
+            data: [{ value: parseFloat(val.toFixed(1)), name: name }]
+        }]
+    };
+
+    // 6. Mettre à jour le graphique (déclenche l'animation)
+    gaugeChart.setOption(option, true);
+}
 
         // -- Graphique Erreur % (Principale vs Control)
         function renderErrorChart(month) {
