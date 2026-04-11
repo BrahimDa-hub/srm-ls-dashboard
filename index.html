@@ -1233,6 +1233,15 @@
 
         // Lancement !
         window.addEventListener('DOMContentLoaded', initApp);
+        window.addEventListener('load', () => {
+    // Forces all charts to recalculate their size once all images (like the map) are fully loaded
+    if (treemapChart) treemapChart.resize();
+    if (tarifsChart) tarifsChart.resize();
+    if (provinceChart) provinceChart.resize();
+    if (transformersChart) transformersChart.resize();
+    if (monthlyChart) monthlyChart.resize();
+    if (errorChart) errorChart.resize();
+});
 
     </script>
 <script>
