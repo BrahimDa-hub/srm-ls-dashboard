@@ -1412,7 +1412,7 @@ function renderSingleGauge(data) {
         
         // 1. Bouton Thème Sombre/Clair
         document.getElementById('themeBtn').addEventListener('click', function() {
-            document.body.classList.toggle('dark-theme');
+            document.body.classList.toggle('dark-mode');
             
             if (document.body.classList.contains('dark-theme')) {
                 this.innerHTML = '☀️ Jour';
@@ -1423,7 +1423,6 @@ function renderSingleGauge(data) {
                 this.style.background = '#2c3e50';
                 this.style.color = '#fff';
             }
-           applyThemeToEcharts();
         });
 
         window.addEventListener('DOMContentLoaded', initApp);
