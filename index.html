@@ -20,7 +20,20 @@
             --danger-color: #f44336;
             --info-color: #00bcd4;
         }
+    /* Définition des couleurs pour le Mode Sombre */
+body.dark-mode {
+    --bg-color: #121824; /* Fond de page sombre */
+    --card-bg: #1e293b;  /* Fond des cartes plus clair que la page */
+    --text-main: #f1f5f9; /* Texte principal en blanc/gris */
+    --text-muted: #94a3b8; /* Texte secondaire en gris clair */
+    --border-color: #334155; /* Bordures sombres */
+}
 
+/* Optionnel : Assombrir le tooltip de la carte en mode sombre */
+body.dark-mode .tooltip {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: var(--border-color);
+}
         * {
             box-sizing: border-box;
             margin: 0;
