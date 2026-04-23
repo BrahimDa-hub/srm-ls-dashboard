@@ -34,25 +34,60 @@
             padding: 20px;
         }
 
-        /* Header & Controls */
+       /* Header & Controls - Thème Électrique SRM-LS */
         header {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--primary-color);
+            /* Fond sombre type salle de contrôle */
+            background: linear-gradient(135deg, #121824 0%, #1b263b 100%);
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
             gap: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(200, 155, 60, 0.3); /* Bordure dorée subtile */
         }
 
-        .header-brand {
+        /* Grille de fond (Thème circuit électrique) */
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(200, 155, 60, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 155, 60, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Ligne d'énergie lumineuse reprenant les vagues du logo */
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            /* Dégradé : Bleu marine -> Orange -> Rouge carmin */
+            background: linear-gradient(90deg, #1b365d 0%, #e8951a 50%, #b01e2b 100%);
+            box-shadow: 0 -2px 10px rgba(232, 149, 26, 0.4); /* Effet de lueur électrique */
+            z-index: 0;
+        }
+
+        /* S'assurer que le contenu reste au-dessus des effets de fond */
+        .header-brand, .controls {
+            position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .logo-box {
@@ -64,33 +99,31 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            /* Lueur dorée autour du logo pour le faire ressortir */
+            box-shadow: 0 0 12px rgba(200, 155, 60, 0.4);
+            border: 2px solid #c89b3c;
         }
 
         .header-brand h1 {
             font-size: 1.5rem;
             margin-bottom: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .header-brand .subtitle {
             font-size: 0.95rem;
-            color: #bbdefb;
-            font-weight: 500;
+            color: #c89b3c; /* Or du logo */
+            font-weight: 600;
             letter-spacing: 0.5px;
-        }
-
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            text-transform: uppercase;
         }
 
         .control-group {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(200, 155, 60, 0.1);
+            border: 1px solid rgba(200, 155, 60, 0.3);
             padding: 5px 10px;
             border-radius: 6px;
         }
@@ -99,12 +132,18 @@
             padding: 8px;
             font-size: 1rem;
             border-radius: 5px;
-            border: 1px solid white;
-            background: white;
-            color: var(--primary-color);
+            border: 1px solid #c89b3c;
+            background: #1b263b;
+            color: #c89b3c;
             font-weight: bold;
             outline: none;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls select:hover {
+            background: #c89b3c;
+            color: #1b263b;
         }
 
         /* KPIs */
