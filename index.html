@@ -475,6 +475,11 @@
             <button id="installBtn" style="display: none; background: var(--accent-color); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
                 📦 Installer l'App
             </button>
+            </button>
+            <button id="themeBtn" style="background: #2c3e50; color: #fff; border: 1px solid #fff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+                🌙 Nuit
+            </button>
+
             <div class="control-group">
                 <label for="monthSelector">Vue :</label>
                 <select id="monthSelector"></select>
@@ -1389,6 +1394,26 @@ function renderSingleGauge(data) {
         }
 
         // Lancement !
+        // ==========================================
+        // GESTION DES BOUTONS (Thème nuit)
+        // ==========================================
+        
+        // 1. Bouton Thème Sombre/Clair
+        document.getElementById('themeBtn').addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                this.innerHTML = '☀️ Jour';
+                this.style.background = '#f1c40f';
+                this.style.color = '#000';
+            } else {
+                this.innerHTML = '🌙 Nuit';
+                this.style.background = '#2c3e50';
+                this.style.color = '#fff';
+            }
+           applyThemeToEcharts();
+        });
+
         window.addEventListener('DOMContentLoaded', initApp);
         window.addEventListener('load', () => {
     // Forces all charts to recalculate their size once all images (like the map) are fully loaded
